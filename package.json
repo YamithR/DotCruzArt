@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "vite build && gh-pages -d dist"
+    "deploy": "git add index.html && git commit -m 'deploy: actualizar app' && git push"
   },
   "dependencies": {
     "react": "^18.3.1",
