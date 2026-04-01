@@ -1,0 +1,343 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-panel: #0f3460;
+  --accent: #e94560;
+  --accent-hover: #c73652;
+  --text-primary: #eaeaea;
+  --text-secondary: #a0a0b0;
+  --grid-line: rgba(255, 255, 255, 0.08);
+  --cell-empty: rgba(255, 255, 255, 0.04);
+  --cell-active-default: #e94560;
+  --border-radius: 12px;
+  --panel-height: 320px;
+  --header-height: 52px;
+  --font-ui: system-ui, -apple-system, sans-serif;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  touch-action: manipulation;
+}
+
+#root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ─── HEADER ─── */
+.app-header {
+  height: var(--header-height);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.app-logo {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.app-logo span.accent {
+  color: var(--accent);
+}
+
+/* ─── CANVAS CONTAINER ─── */
+.canvas-wrapper {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  position: relative;
+}
+
+.grid-canvas {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+}
+
+.canvas-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-secondary);
+  text-align: center;
+  padding: 24px;
+}
+
+.canvas-placeholder .icon {
+  font-size: 3rem;
+  opacity: 0.4;
+}
+
+.canvas-placeholder p {
+  font-size: 0.85rem;
+  max-width: 220px;
+  line-height: 1.5;
+}
+
+/* ─── CONTROLS PANEL ─── */
+.controls-panel {
+  background: var(--bg-secondary);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  height: var(--panel-height);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-handle {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 6px;
+  flex-shrink: 0;
+}
+
+.panel-handle-bar {
+  width: 36px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.panel-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.panel-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.panel-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.panel-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+}
+
+/* ─── FORM ELEMENTS ─── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+}
+
+.field-row {
+  display: flex;
+  gap: 10px;
+}
+
+.field-row .field-group {
+  flex: 1;
+}
+
+textarea.input-text {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 16px; /* Evita zoom en iOS */
+  font-family: var(--font-ui);
+  padding: 10px 12px;
+  resize: none;
+  height: 72px;
+  line-height: 1.4;
+  transition: border-color 0.2s;
+  outline: none;
+}
+
+textarea.input-text:focus {
+  border-color: var(--accent);
+}
+
+select.input-select,
+input.input-number {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-size: 16px; /* Evita zoom en iOS */
+  font-family: var(--font-ui);
+  padding: 9px 12px;
+  outline: none;
+  transition: border-color 0.2s;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+select.input-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0a0b0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 34px;
+}
+
+select.input-select:focus,
+input.input-number:focus {
+  border-color: var(--accent);
+}
+
+input.input-number {
+  text-align: center;
+}
+
+/* ─── COLOR + SWATCH ROW ─── */
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.color-swatch-group {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.color-swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.15s, border-color 0.15s;
+}
+
+.color-swatch:active {
+  transform: scale(0.9);
+}
+
+.color-swatch.selected {
+  border-color: white;
+}
+
+input.input-color {
+  width: 38px;
+  height: 38px;
+  border: none;
+  border-radius: 50%;
+  padding: 2px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ─── EXPORT BUTTON ─── */
+.btn-export {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 9px 18px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.2s, transform 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-export:active {
+  background: var(--accent-hover);
+  transform: scale(0.96);
+}
+
+.btn-export svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* ─── RESOLUTION INFO BADGE ─── */
+.resolution-badge {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  padding: 2px 6px;
+  align-self: flex-end;
+}
+
+/* ─── SAFE AREA padding (notch / home bar) ─── */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .controls-panel {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ─── TABLET / DESKTOP LAYOUT ─── */
+@media (min-width: 768px) {
+  :root {
+    --panel-height: 260px;
+  }
+
+  .panel-scroll {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .panel-scroll > .field-group:first-child {
+    flex: 0 0 100%;
+  }
+
+  .panel-scroll > .field-group,
+  .panel-scroll > .field-row {
+    flex: 1 1 180px;
+  }
+
+  .panel-handle {
+    display: none;
+  }
+}
