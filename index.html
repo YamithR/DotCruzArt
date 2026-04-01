@@ -6,445 +6,1331 @@
   <meta name="theme-color" content="#1a1a2e" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1a2e'/%3E%3Ctext x='4' y='24' font-size='22' fill='%23e94560'%26%2310005%3B%3C/text%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231a1a2e'/%3E%3Ctext x='4' y='24' font-size='22' fill='%23e94560'%3Ex%3C/text%3E%3C/svg%3E" />
   <title>DotCruzArt</title>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&family=Silkscreen:wght@400;700&family=Dancing+Script:wght@700&family=Pacifico&family=Lobster&display=swap" rel="stylesheet" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
       --bg-primary: #1a1a2e;
       --bg-secondary: #16213e;
+      --bg-tertiary: #0f3460;
       --accent: #e94560;
       --accent-hover: #c73652;
       --text-primary: #eaeaea;
-      --text-secondary: #a0a0b0;
-      --panel-height: 320px;
-      --header-height: 52px;
-      --font-ui: system-ui, -apple-system, sans-serif;
+      --text-secondary: #9fb0c9;
+      --header-height: 54px;
+      --panel-height: 360px;
+      --font-ui: "Segoe UI", "Noto Sans", sans-serif;
     }
 
     html, body {
-      height: 100%; overflow: hidden;
-      background: var(--bg-primary); color: var(--text-primary);
-      font-family: var(--font-ui); -webkit-font-smoothing: antialiased;
+      min-height: 100%;
+      overflow-y: auto;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: var(--font-ui);
       touch-action: manipulation;
+      -webkit-font-smoothing: antialiased;
     }
 
-    #root { height: 100%; display: flex; flex-direction: column; }
+    #root {
+      min-height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
 
     .app-header {
-      height: var(--header-height); background: var(--bg-secondary);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 16px; border-bottom: 1px solid rgba(255,255,255,0.08);
-      flex-shrink: 0; z-index: 10;
+      height: var(--header-height);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      gap: 8px;
+      z-index: 30;
+      position: sticky;
+      top: 0;
     }
-    .app-logo { font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; display: flex; align-items: center; gap: 8px; }
+
+    .app-logo {
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
     .app-logo .accent { color: var(--accent); }
 
-    .canvas-wrapper {
-      flex: 1; overflow: hidden;
-      display: flex; align-items: center; justify-content: center;
-      background: var(--bg-primary); position: relative;
-    }
-    .grid-canvas { display: block; max-width: 100%; max-height: 100%; image-rendering: pixelated; }
-
-    .canvas-placeholder {
-      display: flex; flex-direction: column; align-items: center;
-      gap: 12px; color: var(--text-secondary); text-align: center; padding: 24px;
-    }
-    .canvas-placeholder .icon { font-size: 3rem; opacity: 0.4; }
-    .canvas-placeholder p { font-size: 0.85rem; max-width: 220px; line-height: 1.5; }
-
-    .controls-panel {
-      background: var(--bg-secondary); border-top: 1px solid rgba(255,255,255,0.1);
-      height: var(--panel-height); flex-shrink: 0;
-      display: flex; flex-direction: column; overflow: hidden;
-    }
-    .panel-handle { display: flex; justify-content: center; padding: 10px 0 6px; flex-shrink: 0; }
-    .panel-handle-bar { width: 36px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; }
-
-    .panel-scroll {
-      flex: 1; overflow-y: auto; padding: 0 16px 16px;
-      display: flex; flex-direction: column; gap: 14px;
-      -webkit-overflow-scrolling: touch;
-    }
-    .panel-scroll::-webkit-scrollbar { width: 4px; }
-    .panel-scroll::-webkit-scrollbar-track { background: transparent; }
-    .panel-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
-
-    .field-group { display: flex; flex-direction: column; gap: 6px; }
-    .field-label { font-size: 0.7rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); }
-    .field-row { display: flex; gap: 10px; }
-    .field-row .field-group { flex: 1; }
-
-    textarea.input-text {
-      width: 100%; background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-      color: var(--text-primary); font-size: 16px; font-family: var(--font-ui);
-      padding: 10px 12px; resize: none; height: 72px; line-height: 1.4;
-      transition: border-color 0.2s; outline: none;
-    }
-    textarea.input-text:focus { border-color: var(--accent); }
-
-    select.input-select, input.input-number {
-      width: 100%; background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12); border-radius: 8px;
-      color: var(--text-primary); font-size: 16px; font-family: var(--font-ui);
-      padding: 9px 12px; outline: none; transition: border-color 0.2s;
-      -webkit-appearance: none; appearance: none;
-    }
-    select.input-select {
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0a0b0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-      background-repeat: no-repeat; background-position: right 10px center; padding-right: 34px;
-    }
-    select.input-select:focus, input.input-number:focus { border-color: var(--accent); }
-    input.input-number { text-align: center; }
-
-    .color-row { display: flex; align-items: center; gap: 10px; }
-    .color-swatch-group { display: flex; gap: 8px; flex-wrap: wrap; }
-    .color-swatch {
-      width: 28px; height: 28px; border-radius: 50%;
-      border: 2px solid transparent; cursor: pointer; flex-shrink: 0;
-      transition: transform 0.15s, border-color 0.15s;
-    }
-    .color-swatch:active { transform: scale(0.9); }
-    .color-swatch.selected { border-color: white; }
-    input.input-color {
-      width: 38px; height: 38px; border-radius: 50%; padding: 2px;
-      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-      cursor: pointer; flex-shrink: 0;
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
     }
 
-    .btn-export {
-      background: var(--accent); color: white; border: none;
-      border-radius: 8px; padding: 9px 18px; font-size: 0.82rem;
-      font-weight: 700; letter-spacing: 0.04em; cursor: pointer;
-      display: flex; align-items: center; gap: 6px;
-      transition: background 0.2s, transform 0.15s;
-      white-space: nowrap; flex-shrink: 0;
+    .btn-primary,
+    .btn-secondary,
+    .btn-mini,
+    .btn-danger {
+      border: none;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.2s, opacity 0.2s;
+      white-space: nowrap;
     }
-    .btn-export:active { background: var(--accent-hover); transform: scale(0.96); }
-    .btn-export svg { width: 16px; height: 16px; }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+      padding: 8px 12px;
+    }
+
+    .btn-primary:active {
+      background: var(--accent-hover);
+      transform: scale(0.96);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-primary);
+      padding: 8px 10px;
+    }
+
+    .btn-secondary.active {
+      background: rgba(233, 69, 96, 0.25);
+      outline: 1px solid rgba(233, 69, 96, 0.5);
+    }
+
+    .btn-mini {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-primary);
+      padding: 6px 8px;
+      font-size: 0.7rem;
+    }
+
+    .btn-danger {
+      background: rgba(255, 99, 99, 0.2);
+      color: #ffd9d9;
+      padding: 6px 8px;
+      font-size: 0.7rem;
+    }
 
     .resolution-badge {
-      font-size: 0.7rem; color: var(--text-secondary);
-      background: rgba(255,255,255,0.06); border-radius: 4px; padding: 2px 6px;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 6px;
+      padding: 3px 8px;
+    }
+
+    .canvas-wrapper {
+      flex: none;
+      height: calc(100vh - var(--header-height));
+      min-height: 220px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      padding: 8px;
+      background: radial-gradient(circle at 20% 20%, #17325d 0%, #1a1a2e 42%, #111227 100%);
+    }
+
+    .canvas-wrapper.fullscreen {
+      height: 100vh;
+      padding: 4px;
+    }
+
+    .grid-canvas {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      image-rendering: pixelated;
+      border-radius: 8px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    }
+
+    .canvas-placeholder {
+      text-align: center;
+      color: var(--text-secondary);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .canvas-placeholder .icon {
+      font-size: 2.4rem;
+      opacity: 0.4;
+    }
+
+    .controls-panel {
+      background: var(--bg-secondary);
+      border-top: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-handle {
+      display: flex;
+      justify-content: center;
+      padding: 8px 0 6px;
+      flex-shrink: 0;
+    }
+
+    .panel-handle-bar {
+      width: 36px;
+      height: 4px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .panel-scroll {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 0 12px 14px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field-label {
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .field-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .field-row > .field-group,
+    .field-row > .btn-secondary,
+    .field-row > .btn-mini {
+      flex: 1;
+    }
+
+    textarea.input-text,
+    select.input-select,
+    input.input-number,
+    input.input-color,
+    input.input-range {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 16px;
+      font-family: var(--font-ui);
+      outline: none;
+    }
+
+    textarea.input-text {
+      height: 84px;
+      resize: none;
+      padding: 10px;
+      line-height: 1.4;
+    }
+
+    select.input-select,
+    input.input-number {
+      padding: 8px 10px;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    select.input-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a0a0b0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      padding-right: 32px;
+    }
+
+    input.input-number {
+      text-align: center;
+    }
+
+    input.input-range {
+      padding: 0;
+      height: 28px;
+      border: none;
+      background: transparent;
+    }
+
+    .range-value {
+      font-size: 0.73rem;
+      color: #d2d9e5;
+      text-align: right;
+    }
+
+    .color-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .input-color {
+      width: 38px;
+      height: 38px;
+      padding: 2px;
+      border-radius: 50%;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .color-swatch-group {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .color-swatch {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .color-swatch.selected {
+      border-color: #ffffff;
+      box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.45) inset;
+    }
+
+    .advanced-panel {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.16);
+    }
+
+    .advanced-toggle {
+      width: 100%;
+      border: none;
+      border-radius: 0;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 0.82rem;
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .advanced-content {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 10px;
+    }
+
+    .subgroup {
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .subgroup-title {
+      font-size: 0.74rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #bfd0e7;
+      font-weight: 700;
+    }
+
+    .layer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 110px;
+      overflow-y: auto;
+    }
+
+    .layer-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 6px;
+    }
+
+    .layer-name {
+      flex: 1;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .layer-chip {
+      font-size: 0.64rem;
+      padding: 2px 6px;
+      border-radius: 999px;
+      background: rgba(233, 69, 96, 0.25);
+      color: #ffd6de;
+    }
+
+    .range-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+
+    .range-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 8px;
+      padding: 6px;
+      font-size: 0.74rem;
+    }
+
+    .range-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+    }
+
+    .floating-exit {
+      position: absolute;
+      right: 10px;
+      bottom: 10px;
+      z-index: 40;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
     }
 
     @supports (padding-bottom: env(safe-area-inset-bottom)) {
-      .controls-panel { padding-bottom: env(safe-area-inset-bottom); }
+      .controls-panel {
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+      .floating-exit {
+        bottom: calc(10px + env(safe-area-inset-bottom));
+      }
     }
 
-    @media (min-width: 768px) {
-      :root { --panel-height: 260px; }
-      .panel-scroll { flex-direction: row; flex-wrap: wrap; align-items: flex-start; }
-      .panel-scroll > .field-group:first-child { flex: 0 0 100%; }
-      .panel-scroll > .field-group, .panel-scroll > .field-row { flex: 1 1 180px; }
+    @media (min-width: 820px) {
+      .canvas-wrapper {
+        height: calc(55vh - var(--header-height));
+        min-height: 280px;
+      }
       .panel-handle { display: none; }
+      .panel-scroll {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: flex-start;
+      }
+      .panel-scroll > .field-group {
+        flex: 1 1 220px;
+      }
+      .advanced-panel {
+        flex: 1 1 100%;
+      }
     }
   </style>
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- React 18 + ReactDOM desde CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <!-- Babel standalone: transforma JSX en el navegador -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useMemo, useRef } = React;
 
-    /* ─── Utilidad: debounce ─────────────────────────────────────────── */
     function useDebounce(value, delay) {
       const [debounced, setDebounced] = useState(value);
       useEffect(() => {
-        const t = setTimeout(() => setDebounced(value), delay);
-        return () => clearTimeout(t);
+        const timer = setTimeout(() => setDebounced(value), delay);
+        return () => clearTimeout(timer);
       }, [value, delay]);
       return debounced;
     }
 
-    /* ─── textToGrid ─────────────────────────────────────────────────── */
-    function textToGrid({ text, font, gridW, gridH, threshold = 128 }) {
-      const empty = () => Array.from({ length: gridH }, () => new Array(gridW).fill(false));
+    function clamp(value, min, max) {
+      return Math.min(max, Math.max(min, value));
+    }
+
+    function rgbaToHex(r, g, b, a) {
+      if (a <= 0) return null;
+      const alpha = a / 255;
+      const rr = clamp(Math.round(r / alpha), 0, 255);
+      const gg = clamp(Math.round(g / alpha), 0, 255);
+      const bb = clamp(Math.round(b / alpha), 0, 255);
+      return `#${rr.toString(16).padStart(2, '0')}${gg.toString(16).padStart(2, '0')}${bb.toString(16).padStart(2, '0')}`;
+    }
+
+    function colorAtIndex(index, ranges, fallbackColor) {
+      for (let i = ranges.length - 1; i >= 0; i -= 1) {
+        const range = ranges[i];
+        if (index >= range.start && index <= range.end) return range.color;
+      }
+      return fallbackColor;
+    }
+
+    function computeLineMetrics(ctx, line, size, charWidthScale, charSpacing) {
+      if (!line.length) {
+        return { width: size * 0.45 * charWidthScale, chars: [] };
+      }
+      const chars = [];
+      let width = 0;
+      for (let i = 0; i < line.length; i += 1) {
+        const ch = line[i];
+        const baseW = ctx.measureText(ch).width;
+        const renderW = baseW * charWidthScale;
+        chars.push({ ch, renderW });
+        width += renderW;
+        if (i < line.length - 1) width += charSpacing;
+      }
+      return { width, chars };
+    }
+
+    function textToColorGrid(options) {
+      const {
+        text,
+        font,
+        gridW,
+        gridH,
+        defaultColor,
+        ranges,
+        charSpacing,
+        charHeightScale,
+        charWidthScale,
+        alignH,
+        alignV,
+        threshold = 126,
+      } = options;
+
+      const empty = () => Array.from({ length: gridH }, () => new Array(gridW).fill(null));
       if (!text || !text.trim()) return empty();
 
       const canvas = document.createElement('canvas');
-      canvas.width  = gridW;
+      canvas.width = gridW;
       canvas.height = gridH;
       const ctx = canvas.getContext('2d');
       if (!ctx) return empty();
 
-      ctx.clearRect(0, 0, gridW, gridH);
-      const safeText = text.trim();
-      const maxW = gridW * 0.95;
-      const maxH = gridH * 0.85;
-      let lo = 1, hi = Math.max(gridH * 2, 200), bestSize = 4;
+      const lines = text.split('\n');
+      const padX = Math.max(1, gridW * 0.03);
+      const padY = Math.max(1, gridH * 0.03);
 
-      for (let i = 0; i < 20; i++) {
+      let lo = 2;
+      let hi = Math.max(220, gridH * 3);
+      let best = 6;
+
+      for (let iter = 0; iter < 20; iter += 1) {
         const mid = Math.floor((lo + hi) / 2);
         ctx.font = `${mid}px "${font}", sans-serif`;
-        ctx.measureText(safeText).width <= maxW && mid <= maxH
-          ? (bestSize = mid, lo = mid + 1)
-          : (hi = mid - 1);
+        const lineHeight = mid * charHeightScale * 1.2;
+        const totalHeight = lines.length * lineHeight;
+        let maxLineWidth = 0;
+
+        for (let i = 0; i < lines.length; i += 1) {
+          const m = computeLineMetrics(ctx, lines[i], mid, charWidthScale, charSpacing);
+          maxLineWidth = Math.max(maxLineWidth, m.width);
+        }
+
+        if (maxLineWidth <= gridW - padX * 2 && totalHeight <= gridH - padY * 2) {
+          best = mid;
+          lo = mid + 1;
+        } else {
+          hi = mid - 1;
+        }
       }
 
-      ctx.font = `${bestSize}px "${font}", sans-serif`;
-      ctx.fillStyle = '#ffffff';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.clearRect(0, 0, gridW, gridH);
+      ctx.font = `${best}px "${font}", sans-serif`;
+      ctx.textAlign = 'left';
+      ctx.textBaseline = 'top';
 
-      const lines = safeText.split('\n');
-      if (lines.length === 1) {
-        ctx.fillText(safeText, gridW / 2, gridH / 2);
-      } else {
-        const lh = bestSize * 1.2;
-        const startY = (gridH - lh * lines.length) / 2 + bestSize * 0.5;
-        lines.forEach((l, i) => ctx.fillText(l, gridW / 2, startY + i * lh));
+      const lineHeight = best * charHeightScale * 1.2;
+      const totalHeight = lines.length * lineHeight;
+      let startY = padY;
+      if (alignV === 'middle') startY = (gridH - totalHeight) / 2;
+      if (alignV === 'bottom') startY = gridH - totalHeight - padY;
+
+      let globalIndex = 0;
+      for (let row = 0; row < lines.length; row += 1) {
+        const line = lines[row];
+        const metric = computeLineMetrics(ctx, line, best, charWidthScale, charSpacing);
+
+        let startX = padX;
+        if (alignH === 'center') startX = (gridW - metric.width) / 2;
+        if (alignH === 'right') startX = gridW - metric.width - padX;
+
+        let cursorX = startX;
+        const y = startY + row * lineHeight;
+
+        for (let i = 0; i < metric.chars.length; i += 1) {
+          const item = metric.chars[i];
+          const charColor = colorAtIndex(globalIndex, ranges, defaultColor);
+
+          ctx.save();
+          ctx.fillStyle = charColor;
+          ctx.translate(cursorX, y);
+          ctx.scale(charWidthScale, charHeightScale);
+          ctx.fillText(item.ch, 0, 0);
+          ctx.restore();
+
+          cursorX += item.renderW;
+          if (i < metric.chars.length - 1) cursorX += charSpacing;
+          globalIndex += 1;
+        }
+
+        if (row < lines.length - 1) globalIndex += 1;
       }
 
       const { data } = ctx.getImageData(0, 0, gridW, gridH);
-      return Array.from({ length: gridH }, (_, row) =>
-        Array.from({ length: gridW }, (_, col) =>
-          data[(row * gridW + col) * 4 + 3] > threshold
-        )
-      );
+      const matrix = Array.from({ length: gridH }, () => new Array(gridW).fill(null));
+      for (let r = 0; r < gridH; r += 1) {
+        for (let c = 0; c < gridW; c += 1) {
+          const idx = (r * gridW + c) * 4;
+          const alpha = data[idx + 3];
+          if (alpha > threshold) {
+            matrix[r][c] = rgbaToHex(data[idx], data[idx + 1], data[idx + 2], alpha) || defaultColor;
+          }
+        }
+      }
+
+      return matrix;
     }
 
-    /* ─── GridPreview ────────────────────────────────────────────────── */
-    function GridPreview({ matrix, color, gridW, gridH, canvasRef }) {
-      const localRef = useRef(null);
-      const ref = canvasRef || localRef;
-      // drawRef siempre tiene la función con los valores más recientes
-      const drawRef = useRef(null);
+    function composeColorMatrices(textMatrix, layers, gridW, gridH) {
+      const out = Array.from({ length: gridH }, (_, r) =>
+        Array.from({ length: gridW }, (_, c) => (textMatrix && textMatrix[r] ? textMatrix[r][c] : null))
+      );
 
-      drawRef.current = () => {
-        const canvas = ref.current;
+      layers.forEach((layer) => {
+        if (!layer.visible) return;
+        Object.entries(layer.pixels).forEach(([key, color]) => {
+          if (!color) return;
+          const [row, col] = key.split(',').map(Number);
+          if (row >= 0 && row < gridH && col >= 0 && col < gridW) out[row][col] = color;
+        });
+      });
+
+      return out;
+    }
+
+    function GridPreview({
+      colorMatrix,
+      gridW,
+      gridH,
+      bgColor,
+      paintMode,
+      eraserMode,
+      brushColor,
+      onPaint,
+      canvasRef,
+    }) {
+      const localRef = useRef(null);
+      const drawFnRef = useRef(() => {});
+      const drawingRef = useRef(false);
+      const resolvedRef = canvasRef || localRef;
+
+      drawFnRef.current = () => {
+        const canvas = resolvedRef.current;
         if (!canvas) return;
         const parent = canvas.parentElement;
-        const cW = parent ? parent.clientWidth  : 300;
-        const cH = parent ? parent.clientHeight : 300;
-        if (!cW || !cH) return;
+        if (!parent) return;
+
+        const boxW = parent.clientWidth || 300;
+        const boxH = parent.clientHeight || 300;
+        if (!boxW || !boxH) return;
 
         const dpr = window.devicePixelRatio || 1;
-        const cs  = Math.max(2, Math.min(Math.floor(cW / gridW), Math.floor(cH / gridH)));
-        const dW  = cs * gridW;
-        const dH  = cs * gridH;
+        const cellSize = Math.max(2, Math.min(Math.floor(boxW / gridW), Math.floor(boxH / gridH)));
+        const drawW = cellSize * gridW;
+        const drawH = cellSize * gridH;
 
-        canvas.width  = dW * dpr;
-        canvas.height = dH * dpr;
-        canvas.style.width  = `${dW}px`;
-        canvas.style.height = `${dH}px`;
+        canvas.width = drawW * dpr;
+        canvas.height = drawH * dpr;
+        canvas.style.width = `${drawW}px`;
+        canvas.style.height = `${drawH}px`;
 
         const ctx = canvas.getContext('2d');
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
         ctx.scale(dpr, dpr);
-        ctx.fillStyle = '#1a1a2e';
-        ctx.fillRect(0, 0, dW, dH);
 
-        for (let row = 0; row < gridH; row++) {
-          for (let col = 0; col < gridW; col++) {
-            const x = col * cs, y = row * cs;
-            const active = matrix && matrix[row] && matrix[row][col];
-            if (active) {
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(0, 0, drawW, drawH);
+
+        for (let row = 0; row < gridH; row += 1) {
+          for (let col = 0; col < gridW; col += 1) {
+            const x = col * cellSize;
+            const y = row * cellSize;
+            const color = colorMatrix && colorMatrix[row] ? colorMatrix[row][col] : null;
+            if (color) {
               ctx.fillStyle = color;
-              ctx.fillRect(x + 1, y + 1, cs - 2, cs - 2);
-              if (cs >= 6) {
-                const p = Math.max(1, Math.floor(cs * 0.15));
-                ctx.strokeStyle = 'rgba(0,0,0,0.45)';
-                ctx.lineWidth = Math.max(1, cs * 0.12);
+              ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
+
+              if (cellSize >= 6) {
+                const pad = Math.max(1, Math.floor(cellSize * 0.16));
+                ctx.strokeStyle = 'rgba(0, 0, 0, 0.4)';
+                ctx.lineWidth = Math.max(1, cellSize * 0.11);
                 ctx.lineCap = 'round';
                 ctx.beginPath();
-                ctx.moveTo(x + p,      y + p);      ctx.lineTo(x + cs - p, y + cs - p);
-                ctx.moveTo(x + cs - p, y + p);      ctx.lineTo(x + p,      y + cs - p);
+                ctx.moveTo(x + pad, y + pad);
+                ctx.lineTo(x + cellSize - pad, y + cellSize - pad);
+                ctx.moveTo(x + cellSize - pad, y + pad);
+                ctx.lineTo(x + pad, y + cellSize - pad);
                 ctx.stroke();
               }
             } else {
-              ctx.fillStyle = 'rgba(255,255,255,0.04)';
-              ctx.fillRect(x + 1, y + 1, cs - 2, cs - 2);
+              ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+              ctx.fillRect(x + 1, y + 1, cellSize - 2, cellSize - 2);
             }
           }
         }
 
-        if (cs >= 5) {
-          ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+        if (cellSize >= 5) {
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
           ctx.lineWidth = 0.5;
           ctx.beginPath();
-          for (let c = 0; c <= gridW; c++) { ctx.moveTo(c * cs, 0); ctx.lineTo(c * cs, dH); }
-          for (let r = 0; r <= gridH; r++) { ctx.moveTo(0, r * cs); ctx.lineTo(dW, r * cs); }
+          for (let c = 0; c <= gridW; c += 1) {
+            ctx.moveTo(c * cellSize, 0);
+            ctx.lineTo(c * cellSize, drawH);
+          }
+          for (let r = 0; r <= gridH; r += 1) {
+            ctx.moveTo(0, r * cellSize);
+            ctx.lineTo(drawW, r * cellSize);
+          }
           ctx.stroke();
+        }
+
+        if (paintMode) {
+          ctx.strokeStyle = eraserMode ? 'rgba(255, 80, 80, 0.9)' : 'rgba(120, 245, 178, 0.95)';
+          ctx.lineWidth = 2;
+          ctx.strokeRect(1, 1, drawW - 2, drawH - 2);
         }
       };
 
-      // Redibujar cuando cambian los datos
-      useEffect(() => { drawRef.current(); });
-
-      // Redibujar cuando el contenedor cambia de tamaño
       useEffect(() => {
-        const canvas = ref.current;
-        if (!canvas || !canvas.parentElement) return;
-        const obs = new ResizeObserver(() => drawRef.current());
-        obs.observe(canvas.parentElement);
-        return () => obs.disconnect();
-      }, []);
+        drawFnRef.current();
+      });
 
-      return <canvas ref={ref} className="grid-canvas" />;
+      useEffect(() => {
+        const canvas = resolvedRef.current;
+        if (!canvas || !canvas.parentElement) return;
+        const observer = new ResizeObserver(() => drawFnRef.current());
+        observer.observe(canvas.parentElement);
+        return () => observer.disconnect();
+      }, [resolvedRef]);
+
+      function pointToCell(event) {
+        const canvas = resolvedRef.current;
+        if (!canvas) return null;
+        const rect = canvas.getBoundingClientRect();
+        if (!rect.width || !rect.height) return null;
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+        const col = Math.floor((x / rect.width) * gridW);
+        const row = Math.floor((y / rect.height) * gridH);
+        if (row < 0 || row >= gridH || col < 0 || col >= gridW) return null;
+        return { row, col };
+      }
+
+      function applyPaint(event) {
+        const cell = pointToCell(event);
+        if (!cell) return;
+        onPaint(cell.row, cell.col, eraserMode ? null : brushColor);
+      }
+
+      function onPointerDown(event) {
+        if (!paintMode) return;
+        event.preventDefault();
+        drawingRef.current = true;
+        applyPaint(event);
+      }
+
+      function onPointerMove(event) {
+        if (!paintMode || !drawingRef.current) return;
+        event.preventDefault();
+        applyPaint(event);
+      }
+
+      function onPointerUp() {
+        drawingRef.current = false;
+      }
+
+      return (
+        <canvas
+          ref={resolvedRef}
+          className="grid-canvas"
+          onContextMenu={(e) => e.preventDefault()}
+          onPointerDown={onPointerDown}
+          onPointerMove={onPointerMove}
+          onPointerUp={onPointerUp}
+          onPointerLeave={onPointerUp}
+        />
+      );
     }
 
-    /* ─── Constantes de UI ───────────────────────────────────────────── */
-    const FONTS = [
-      { label: 'Press Start 2P (pixel)',    value: 'Press Start 2P' },
-      { label: 'VT323 (retro terminal)',    value: 'VT323' },
+    const FONT_OPTIONS = [
+      { label: 'Press Start 2P (pixel)', value: 'Press Start 2P' },
+      { label: 'VT323 (retro terminal)', value: 'VT323' },
       { label: 'Silkscreen (pixel limpio)', value: 'Silkscreen' },
-      { label: 'Dancing Script (caligrafía)', value: 'Dancing Script' },
-      { label: 'Pacifico (redondeada)',     value: 'Pacifico' },
-      { label: 'Lobster (negrita cursiva)', value: 'Lobster' },
-      { label: 'Arial (sistema)',           value: 'Arial' },
-      { label: 'Georgia (serif)',           value: 'Georgia' },
-      { label: 'Courier New (mono)',        value: 'Courier New' },
+      { label: 'Dancing Script', value: 'Dancing Script' },
+      { label: 'Pacifico', value: 'Pacifico' },
+      { label: 'Lobster', value: 'Lobster' },
+      { label: 'Arial', value: 'Arial' },
+      { label: 'Georgia', value: 'Georgia' },
+      { label: 'Courier New', value: 'Courier New' },
     ];
-    const COLORS = ['#e94560','#f5a623','#f8e71c','#7ed321','#4a90e2','#bd10e0','#ffffff','#000000'];
 
-    /* ─── ControlsPanel ──────────────────────────────────────────────── */
-    function ControlsPanel({ text, font, gridW, gridH, color, onText, onFont, onGridW, onGridH, onColor }) {
-      const clamp = (v, min, max) => Math.min(max, Math.max(min, Number(v) || min));
+    const PALETTE = ['#e94560', '#f5a623', '#f8e71c', '#7ed321', '#4a90e2', '#bd10e0', '#ffffff', '#000000'];
+
+    function ExportButton({ canvasRef, filename }) {
+      function exportPng() {
+        const canvas = canvasRef && canvasRef.current;
+        if (!canvas) return;
+        try {
+          const link = document.createElement('a');
+          link.href = canvas.toDataURL('image/png');
+          link.download = `${filename || 'dotcruzart'}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (error) {
+          alert('No se pudo exportar la imagen.');
+        }
+      }
+
       return (
-        <div className="controls-panel">
+        <button className="btn-primary" onClick={exportPng}>Exportar PNG</button>
+      );
+    }
+
+    function ControlsPanel(props) {
+      const {
+        text,
+        onText,
+        font,
+        onFont,
+        defaultTextColor,
+        onDefaultTextColor,
+        showAdvanced,
+        onToggleAdvanced,
+        showSizeAdjust,
+        onToggleSizeAdjust,
+        gridW,
+        gridH,
+        onGridW,
+        onGridH,
+        bgColor,
+        onBgColor,
+        charSpacing,
+        onCharSpacing,
+        charHeight,
+        onCharHeight,
+        charWidth,
+        onCharWidth,
+        alignH,
+        alignV,
+        onAlignH,
+        onAlignV,
+        ranges,
+        rangeStart,
+        rangeEnd,
+        rangeColor,
+        onRangeStart,
+        onRangeEnd,
+        onRangeColor,
+        onAddRange,
+        onRemoveRange,
+        paintMode,
+        onPaintMode,
+        fullscreen,
+        onFullscreen,
+        eraserMode,
+        onEraserMode,
+        brushColor,
+        onBrushColor,
+        layers,
+        activeLayerId,
+        onSetActiveLayer,
+        onToggleLayerVisible,
+        onAddLayer,
+        onDeleteLayer,
+        onClearLayer,
+      } = props;
+
+      return (
+        <section className="controls-panel">
           <div className="panel-handle"><div className="panel-handle-bar" /></div>
           <div className="panel-scroll">
-
             <div className="field-group">
               <label className="field-label">Texto</label>
-              <textarea className="input-text" value={text} onChange={e => onText(e.target.value)}
-                placeholder="Escribe aquí tu patrón…" spellCheck={false} autoCorrect="off" autoCapitalize="off" />
+              <textarea
+                className="input-text"
+                value={text}
+                onChange={(e) => onText(e.target.value)}
+                placeholder="Escribe aquí tu texto para el patrón"
+                spellCheck={false}
+              />
             </div>
 
             <div className="field-group">
               <label className="field-label">Fuente</label>
-              <select className="input-select" value={font} onChange={e => onFont(e.target.value)}
-                style={{ fontFamily: `"${font}", sans-serif` }}>
-                {FONTS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
+              <select className="input-select" value={font} onChange={(e) => onFont(e.target.value)} style={{ fontFamily: `"${font}", sans-serif` }}>
+                {FONT_OPTIONS.map((f) => (
+                  <option key={f.value} value={f.value}>{f.label}</option>
+                ))}
               </select>
             </div>
 
-            <div className="field-row">
-              <div className="field-group">
-                <label className="field-label">Ancho (celdas)</label>
-                <input type="number" className="input-number" value={gridW} min={10} max={200}
-                  onChange={e => onGridW(clamp(e.target.value, 10, 200))} />
-              </div>
-              <div className="field-group">
-                <label className="field-label">Alto (celdas)</label>
-                <input type="number" className="input-number" value={gridH} min={10} max={200}
-                  onChange={e => onGridH(clamp(e.target.value, 10, 200))} />
-              </div>
-            </div>
-
             <div className="field-group">
-              <label className="field-label">Color del hilo</label>
+              <label className="field-label">Color base del texto</label>
               <div className="color-row">
-                <input type="color" className="input-color" value={color}
-                  onChange={e => onColor(e.target.value)} title="Color personalizado" />
+                <input className="input-color" type="color" value={defaultTextColor} onChange={(e) => onDefaultTextColor(e.target.value)} />
                 <div className="color-swatch-group">
-                  {COLORS.map(c => (
-                    <button key={c}
-                      className={`color-swatch${color.toLowerCase() === c.toLowerCase() ? ' selected' : ''}`}
-                      style={{ background: c }} onClick={() => onColor(c)} aria-label={c} />
+                  {PALETTE.map((c) => (
+                    <button
+                      key={c}
+                      className={`color-swatch${defaultTextColor.toLowerCase() === c.toLowerCase() ? ' selected' : ''}`}
+                      style={{ background: c }}
+                      onClick={() => onDefaultTextColor(c)}
+                      type="button"
+                    />
                   ))}
                 </div>
               </div>
             </div>
 
+            <div className="advanced-panel">
+              <button className="advanced-toggle" type="button" onClick={onToggleAdvanced}>
+                Edicion avanzada {showAdvanced ? '▲' : '▼'}
+              </button>
+
+              {showAdvanced && (
+                <div className="advanced-content">
+                  <div className="subgroup">
+                    <div className="subgroup-title">Malla y fondo</div>
+                    <button type="button" className="btn-secondary" onClick={onToggleSizeAdjust}>Ajustar ancho / alto</button>
+
+                    {showSizeAdjust && (
+                      <>
+                        <div className="field-group">
+                          <label className="field-label">Ancho de malla (5-100)</label>
+                          <input className="input-range" type="range" min="5" max="100" step="1" value={gridW} onChange={(e) => onGridW(Number(e.target.value))} />
+                          <div className="range-value">{gridW} celdas</div>
+                        </div>
+                        <div className="field-group">
+                          <label className="field-label">Alto de malla (5-100)</label>
+                          <input className="input-range" type="range" min="5" max="100" step="1" value={gridH} onChange={(e) => onGridH(Number(e.target.value))} />
+                          <div className="range-value">{gridH} celdas</div>
+                        </div>
+                      </>
+                    )}
+
+                    <div className="field-group">
+                      <label className="field-label">Color de fondo</label>
+                      <input className="input-color" type="color" value={bgColor} onChange={(e) => onBgColor(e.target.value)} />
+                    </div>
+                  </div>
+
+                  <div className="subgroup">
+                    <div className="subgroup-title">Texto avanzado</div>
+
+                    <div className="field-group">
+                      <label className="field-label">Separacion de caracteres (celdas)</label>
+                      <input className="input-range" type="range" min="0" max="4" step="0.1" value={charSpacing} onChange={(e) => onCharSpacing(Number(e.target.value))} />
+                      <div className="range-value">{charSpacing.toFixed(1)}</div>
+                    </div>
+
+                    <div className="field-group">
+                      <label className="field-label">Altura de caracteres</label>
+                      <input className="input-range" type="range" min="0.5" max="2" step="0.05" value={charHeight} onChange={(e) => onCharHeight(Number(e.target.value))} />
+                      <div className="range-value">{charHeight.toFixed(2)}x</div>
+                    </div>
+
+                    <div className="field-group">
+                      <label className="field-label">Anchura de caracteres</label>
+                      <input className="input-range" type="range" min="0.5" max="2" step="0.05" value={charWidth} onChange={(e) => onCharWidth(Number(e.target.value))} />
+                      <div className="range-value">{charWidth.toFixed(2)}x</div>
+                    </div>
+
+                    <div className="field-row">
+                      <div className="field-group">
+                        <label className="field-label">Alineacion horizontal</label>
+                        <select className="input-select" value={alignH} onChange={(e) => onAlignH(e.target.value)}>
+                          <option value="left">Izquierda</option>
+                          <option value="center">Centro</option>
+                          <option value="right">Derecha</option>
+                        </select>
+                      </div>
+                      <div className="field-group">
+                        <label className="field-label">Alineacion vertical</label>
+                        <select className="input-select" value={alignV} onChange={(e) => onAlignV(e.target.value)}>
+                          <option value="top">Superior</option>
+                          <option value="middle">Central</option>
+                          <option value="bottom">Inferior</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="subgroup">
+                    <div className="subgroup-title">Color por secciones de texto</div>
+                    <div className="field-row">
+                      <div className="field-group">
+                        <label className="field-label">Inicio</label>
+                        <input className="input-number" type="number" min="0" value={rangeStart} onChange={(e) => onRangeStart(Number(e.target.value))} />
+                      </div>
+                      <div className="field-group">
+                        <label className="field-label">Fin</label>
+                        <input className="input-number" type="number" min="0" value={rangeEnd} onChange={(e) => onRangeEnd(Number(e.target.value))} />
+                      </div>
+                    </div>
+
+                    <div className="field-row">
+                      <input className="input-color" type="color" value={rangeColor} onChange={(e) => onRangeColor(e.target.value)} />
+                      <button type="button" className="btn-secondary" onClick={onAddRange}>Aplicar color al rango</button>
+                    </div>
+
+                    <div className="range-list">
+                      {ranges.length === 0 && <div className="range-item">No hay rangos de color.</div>}
+                      {ranges.map((r) => (
+                        <div className="range-item" key={r.id}>
+                          <div className="range-dot" style={{ background: r.color }} />
+                          <span style={{ flex: 1 }}>Indices {r.start} - {r.end}</span>
+                          <button type="button" className="btn-mini" onClick={() => onRemoveRange(r.id)}>Quitar</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="subgroup">
+                    <div className="subgroup-title">Capas de pintura pixel a pixel</div>
+
+                    <div className="field-row">
+                      <button type="button" className={`btn-secondary ${paintMode ? 'active' : ''}`} onClick={() => onPaintMode(!paintMode)}>
+                        {paintMode ? 'Pintando' : 'Activar pintura'}
+                      </button>
+                      <button type="button" className={`btn-secondary ${eraserMode ? 'active' : ''}`} onClick={() => onEraserMode(!eraserMode)}>
+                        {eraserMode ? 'Borrador on' : 'Borrador off'}
+                      </button>
+                    </div>
+
+                    <div className="field-row">
+                      <input className="input-color" type="color" value={brushColor} onChange={(e) => onBrushColor(e.target.value)} />
+                      <button type="button" className="btn-secondary" onClick={onAddLayer}>Nueva capa</button>
+                      <button type="button" className="btn-secondary" onClick={() => onClearLayer(activeLayerId)}>Limpiar capa</button>
+                    </div>
+
+                    <div className="layer-list">
+                      {layers.map((layer) => (
+                        <div className="layer-item" key={layer.id}>
+                          <button
+                            type="button"
+                            className={`btn-mini ${activeLayerId === layer.id ? 'active' : ''}`}
+                            onClick={() => onSetActiveLayer(layer.id)}
+                          >
+                            Usar
+                          </button>
+
+                          <span className="layer-name">{layer.name}</span>
+                          {activeLayerId === layer.id && <span className="layer-chip">Activa</span>}
+
+                          <button type="button" className="btn-mini" onClick={() => onToggleLayerVisible(layer.id)}>
+                            {layer.visible ? 'Ocultar' : 'Mostrar'}
+                          </button>
+                          <button type="button" className="btn-danger" onClick={() => onDeleteLayer(layer.id)}>X</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="subgroup">
+                    <div className="subgroup-title">Modo dibujo</div>
+                    <button type="button" className={`btn-secondary ${fullscreen ? 'active' : ''}`} onClick={() => onFullscreen(!fullscreen)}>
+                      {fullscreen ? 'Salir de pantalla completa' : 'Pantalla completa de dibujo'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </section>
       );
     }
 
-    /* ─── ExportButton ───────────────────────────────────────────────── */
-    function ExportButton({ canvasRef, filename }) {
-      function handle() {
-        const canvas = canvasRef && canvasRef.current;
-        if (!canvas) return;
-        try {
-          const a = document.createElement('a');
-          a.href = canvas.toDataURL('image/png');
-          a.download = (filename || 'patron') + '.png';
-          a.style.display = 'none';
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-        } catch(e) {
-          alert('No se pudo exportar. Asegúrate de usar Chrome o Firefox.');
-        }
-      }
-      return (
-        <button className="btn-export" onClick={handle} title="Descargar PNG">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-            <polyline points="7 10 12 15 17 10" />
-            <line x1="12" y1="15" x2="12" y2="3" />
-          </svg>
-          Exportar PNG
-        </button>
-      );
-    }
-
-    /* ─── App ────────────────────────────────────────────────────────── */
     function App() {
-      const [text,   setText]   = useState('ABC');
-      const [font,   setFont]   = useState('Press Start 2P');
-      const [gridW,  setGridW]  = useState(60);
-      const [gridH,  setGridH]  = useState(30);
-      const [color,  setColor]  = useState('#e94560');
-      const [matrix, setMatrix] = useState([]);
+      const [text, setText] = useState('ABC');
+      const [font, setFont] = useState('Press Start 2P');
+      const [gridW, setGridW] = useState(60);
+      const [gridH, setGridH] = useState(30);
+
+      const [defaultTextColor, setDefaultTextColor] = useState('#e94560');
+      const [bgColor, setBgColor] = useState('#1a1a2e');
+
+      const [charSpacing, setCharSpacing] = useState(0);
+      const [charHeight, setCharHeight] = useState(1);
+      const [charWidth, setCharWidth] = useState(1);
+
+      const [alignH, setAlignH] = useState('center');
+      const [alignV, setAlignV] = useState('middle');
+
+      const [showAdvanced, setShowAdvanced] = useState(false);
+      const [showSizeAdjust, setShowSizeAdjust] = useState(false);
+
+      const [rangeStart, setRangeStart] = useState(0);
+      const [rangeEnd, setRangeEnd] = useState(0);
+      const [rangeColor, setRangeColor] = useState('#4a90e2');
+      const [ranges, setRanges] = useState([]);
+
+      const [layers, setLayers] = useState([
+        { id: 'layer-1', name: 'Capa 1', visible: true, pixels: {} },
+      ]);
+      const [activeLayerId, setActiveLayerId] = useState('layer-1');
+
+      const [paintMode, setPaintMode] = useState(false);
+      const [eraserMode, setEraserMode] = useState(false);
+      const [brushColor, setBrushColor] = useState('#ffffff');
+      const [fullscreenDraw, setFullscreenDraw] = useState(false);
+
       const canvasRef = useRef(null);
 
-      const dText  = useDebounce(text,  300);
-      const dFont  = useDebounce(font,  200);
-      const dGridW = useDebounce(gridW, 300);
-      const dGridH = useDebounce(gridH, 300);
+      const dText = useDebounce(text, 250);
+      const dFont = useDebounce(font, 180);
+      const dGridW = useDebounce(gridW, 150);
+      const dGridH = useDebounce(gridH, 150);
+      const dCharSpacing = useDebounce(charSpacing, 120);
+      const dCharHeight = useDebounce(charHeight, 120);
+      const dCharWidth = useDebounce(charWidth, 120);
+      const dRanges = useDebounce(ranges, 100);
+
+      const [textColorMatrix, setTextColorMatrix] = useState([]);
 
       useEffect(() => {
         function compute() {
-          setMatrix(textToGrid({ text: dText, font: dFont, gridW: dGridW, gridH: dGridH }));
+          setTextColorMatrix(
+            textToColorGrid({
+              text: dText,
+              font: dFont,
+              gridW: dGridW,
+              gridH: dGridH,
+              defaultColor: defaultTextColor,
+              ranges: dRanges,
+              charSpacing: dCharSpacing,
+              charHeightScale: dCharHeight,
+              charWidthScale: dCharWidth,
+              alignH,
+              alignV,
+            })
+          );
         }
-        compute();
-        document.fonts.addEventListener('loadingdone', compute);
-        return () => document.fonts.removeEventListener('loadingdone', compute);
-      }, [dText, dFont, dGridW, dGridH]);
 
-      const hasText = text.trim().length > 0;
+        compute();
+
+        const fontSet = document.fonts;
+        if (fontSet && typeof fontSet.addEventListener === 'function') {
+          fontSet.addEventListener('loadingdone', compute);
+          return () => fontSet.removeEventListener('loadingdone', compute);
+        }
+
+        if (fontSet && fontSet.ready) {
+          fontSet.ready.then(compute);
+        }
+
+        return undefined;
+      }, [dText, dFont, dGridW, dGridH, defaultTextColor, dRanges, dCharSpacing, dCharHeight, dCharWidth, alignH, alignV]);
+
+      const finalColorMatrix = useMemo(() => {
+        return composeColorMatrices(textColorMatrix, layers, gridW, gridH);
+      }, [textColorMatrix, layers, gridW, gridH]);
+
+      function addRange() {
+        if (!text.length) return;
+        const maxIndex = Math.max(0, text.length - 1);
+        const a = clamp(Number(rangeStart) || 0, 0, maxIndex);
+        const b = clamp(Number(rangeEnd) || 0, 0, maxIndex);
+        const start = Math.min(a, b);
+        const end = Math.max(a, b);
+        setRanges((prev) => [...prev, { id: Date.now() + Math.random(), start, end, color: rangeColor }]);
+      }
+
+      function removeRange(id) {
+        setRanges((prev) => prev.filter((r) => r.id !== id));
+      }
+
+      function addLayer() {
+        const index = layers.length + 1;
+        const id = `layer-${Date.now()}`;
+        setLayers((prev) => [...prev, { id, name: `Capa ${index}`, visible: true, pixels: {} }]);
+        setActiveLayerId(id);
+      }
+
+      function deleteLayer(id) {
+        if (layers.length <= 1) return;
+        setLayers((prev) => {
+          const next = prev.filter((layer) => layer.id !== id);
+          if (!next.find((layer) => layer.id === activeLayerId)) {
+            setActiveLayerId(next[0].id);
+          }
+          return next;
+        });
+      }
+
+      function toggleLayerVisible(id) {
+        setLayers((prev) => prev.map((layer) => (
+          layer.id === id ? { ...layer, visible: !layer.visible } : layer
+        )));
+      }
+
+      function clearLayer(id) {
+        setLayers((prev) => prev.map((layer) => (
+          layer.id === id ? { ...layer, pixels: {} } : layer
+        )));
+      }
+
+      function paintCell(row, col, color) {
+        setLayers((prev) => prev.map((layer) => {
+          if (layer.id !== activeLayerId) return layer;
+          const pixels = { ...layer.pixels };
+          const key = `${row},${col}`;
+          if (!color) delete pixels[key];
+          else pixels[key] = color;
+          return { ...layer, pixels };
+        }));
+      }
+
+      function toggleFullscreen(value) {
+        setFullscreenDraw(value);
+        if (value) setPaintMode(true);
+      }
 
       return (
         <>
           <header className="app-header">
             <div className="app-logo">
-              <span className="accent">✕</span> DotCruz<span className="accent">Art</span>
+              <span className="accent">x</span> DotCruz<span className="accent">Art</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <span className="resolution-badge">{gridW}×{gridH}</span>
+
+            <div className="header-actions">
+              <span className="resolution-badge">{gridW}x{gridH}</span>
+              <button className={`btn-secondary ${fullscreenDraw ? 'active' : ''}`} onClick={() => toggleFullscreen(!fullscreenDraw)}>
+                {fullscreenDraw ? 'Salir' : 'Pantalla completa'}
+              </button>
               <ExportButton canvasRef={canvasRef} filename={`dotcruzart-${gridW}x${gridH}`} />
             </div>
           </header>
 
-          <main className="canvas-wrapper">
-            {hasText
-              ? <GridPreview matrix={matrix} color={color} gridW={gridW} gridH={gridH} canvasRef={canvasRef} />
-              : <div className="canvas-placeholder">
-                  <span className="icon">✕</span>
-                  <p>Escribe algo en el panel de abajo para ver tu patrón de punto cruz</p>
-                </div>
-            }
+          <main className={`canvas-wrapper ${fullscreenDraw ? 'fullscreen' : ''}`}>
+            {text.trim().length > 0 || paintMode ? (
+              <GridPreview
+                colorMatrix={finalColorMatrix}
+                gridW={gridW}
+                gridH={gridH}
+                bgColor={bgColor}
+                paintMode={paintMode}
+                eraserMode={eraserMode}
+                brushColor={brushColor}
+                onPaint={paintCell}
+                canvasRef={canvasRef}
+              />
+            ) : (
+              <div className="canvas-placeholder">
+                <span className="icon">x</span>
+                <p>Escribe un texto para iniciar, o activa pintura por capas en Edicion avanzada.</p>
+              </div>
+            )}
+
+            {fullscreenDraw && (
+              <button className="btn-primary floating-exit" onClick={() => toggleFullscreen(false)}>
+                Salir de dibujo
+              </button>
+            )}
           </main>
 
-          <ControlsPanel
-            text={text} font={font} gridW={gridW} gridH={gridH} color={color}
-            onText={setText} onFont={setFont} onGridW={setGridW} onGridH={setGridH} onColor={setColor}
-          />
+          {!fullscreenDraw && (
+            <ControlsPanel
+              text={text}
+              onText={setText}
+              font={font}
+              onFont={setFont}
+              defaultTextColor={defaultTextColor}
+              onDefaultTextColor={setDefaultTextColor}
+              showAdvanced={showAdvanced}
+              onToggleAdvanced={() => setShowAdvanced((v) => !v)}
+              showSizeAdjust={showSizeAdjust}
+              onToggleSizeAdjust={() => setShowSizeAdjust((v) => !v)}
+              gridW={gridW}
+              gridH={gridH}
+              onGridW={(v) => setGridW(clamp(v, 5, 100))}
+              onGridH={(v) => setGridH(clamp(v, 5, 100))}
+              bgColor={bgColor}
+              onBgColor={setBgColor}
+              charSpacing={charSpacing}
+              onCharSpacing={(v) => setCharSpacing(clamp(v, 0, 4))}
+              charHeight={charHeight}
+              onCharHeight={(v) => setCharHeight(clamp(v, 0.5, 2))}
+              charWidth={charWidth}
+              onCharWidth={(v) => setCharWidth(clamp(v, 0.5, 2))}
+              alignH={alignH}
+              alignV={alignV}
+              onAlignH={setAlignH}
+              onAlignV={setAlignV}
+              ranges={ranges}
+              rangeStart={rangeStart}
+              rangeEnd={rangeEnd}
+              rangeColor={rangeColor}
+              onRangeStart={setRangeStart}
+              onRangeEnd={setRangeEnd}
+              onRangeColor={setRangeColor}
+              onAddRange={addRange}
+              onRemoveRange={removeRange}
+              paintMode={paintMode}
+              onPaintMode={setPaintMode}
+              fullscreen={fullscreenDraw}
+              onFullscreen={toggleFullscreen}
+              eraserMode={eraserMode}
+              onEraserMode={setEraserMode}
+              brushColor={brushColor}
+              onBrushColor={setBrushColor}
+              layers={layers}
+              activeLayerId={activeLayerId}
+              onSetActiveLayer={setActiveLayerId}
+              onToggleLayerVisible={toggleLayerVisible}
+              onAddLayer={addLayer}
+              onDeleteLayer={deleteLayer}
+              onClearLayer={clearLayer}
+            />
+          )}
         </>
       );
     }
